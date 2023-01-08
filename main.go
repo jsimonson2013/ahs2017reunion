@@ -14,6 +14,15 @@ func main() {
 
 func submitForm(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.URL.Query())
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+
+	if len(r.URL.Query()["fname"]) < 1 ||
+		len(r.URL.Query()["lname"]) < 1 ||
+		len(r.URL.Query()["email"]) < 1 ||
+		len(r.URL.Query()["phone"]) < 1 {
+		w.WriteHeader(400)
+		return
+	}
 
 	firstName := r.URL.Query()["fname"][0]
 	lastName := r.URL.Query()["lname"][0]
@@ -31,6 +40,5 @@ func submitForm(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	w.Header().Add("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(200)
 }

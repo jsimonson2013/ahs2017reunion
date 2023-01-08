@@ -1,24 +1,24 @@
 <html>
 <head>
 <script>
-    function callREST(form) {
-        fetch(`http://localhost:3333/submit?fname=${document.getElementById('fname').value}`)
-            .then((response) => response.json())
+    function callREST() {
+        fetch(`http://localhost:3333/submit?fname=${document.getElementById('fname').value}&lname=${document.getElementById('lname').value}&phone=${document.getElementById('phone').value}&email=${document.getElementById('email').value}`)
+            .then((response) => response.text())
             .then((data) => console.log(data));
     }
 </script>
 </head>
     <body>
-        <form action="#" onsubmit="callREST()">
+        <form action="javascript:void(0);">
             <label for="fname">First name:</label><br>
             <input type="text" id="fname" name="fname"><br>
             <label for="lname">Last name:</label><br>
             <input type="text" id="lname" name="lname"><br>
-            <label for="pnum">Phone number:</label><br>
-            <input type="text" id="pnum" name="pnum"><br>
+            <label for="phone">Phone number:</label><br>
+            <input type="text" id="phone" name="phone"><br>
             <label for="email">Email:</label><br>
-            <input type="text" id="email" name="email">
-            <button type="submit">Send message</button>
+            <input type="text" id="email" name="email"><br>
+            <button onclick="callREST()">Submit</button>
         </form>
     </body>
 </html>
