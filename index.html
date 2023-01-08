@@ -2,12 +2,14 @@
 <head>
 <script>
     function callREST(form) {
-        console.log(form.fname)
+        fetch(`http://localhost:3333/submit?fname=${document.getElementById('fname').value}`)
+            .then((response) => response.json())
+            .then((data) => console.log(data));
     }
 </script>
 </head>
     <body>
-        <form onsubmit="return callREST(this)">
+        <form action="#" onsubmit="callREST()">
             <label for="fname">First name:</label><br>
             <input type="text" id="fname" name="fname"><br>
             <label for="lname">Last name:</label><br>
