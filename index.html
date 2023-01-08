@@ -2,7 +2,7 @@
 <head>
 <script>
     function callREST() {
-        fetch(`http://localhost:3333/submit?fname=${document.getElementById('fname').value}&lname=${document.getElementById('lname').value}&phone=${document.getElementById('phone').value}&email=${document.getElementById('email').value}`)
+        fetch(`https://gioandjake.com/submit?fname=${document.getElementById('fname').value}&lname=${document.getElementById('lname').value}&phone=${document.getElementById('phone').value}&email=${document.getElementById('email').value}`)
             .then((response) => response.text())
             .then((data) => console.log(data));
     }
