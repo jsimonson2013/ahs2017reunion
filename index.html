@@ -7,18 +7,44 @@
             .then((data) => console.log(data));
     }
 </script>
+<style type="text/css">
+    html{
+        padding: 10px;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    form{
+        border: 1px solid black;
+        border-radius: 5px;
+        width: fit-content;
+        padding: 5px;
+    }
+    body{
+        width: fit-content;
+        margin: 0 auto;
+    }
+</style>
 </head>
     <body>
+        <h1>AHS Class of 2013 Reunion</h1>
+        <h2>Tentative date and location is June 17th 2023 at The Local Bar & Grille</h2>
+        <p>Please enter your information if you would like to be contacted about the Ashland High School Class of 2013 Reunion!</p>
         <form action="javascript:void(0);">
             <label for="fname">First name:</label><br>
-            <input type="text" id="fname" name="fname"><br>
+            <input type="text" id="fname" name="fname"><br><br>
             <label for="lname">Last name:</label><br>
-            <input type="text" id="lname" name="lname"><br>
+            <input type="text" id="lname" name="lname"><br><br>
             <label for="phone">Phone number:</label><br>
-            <input type="text" id="phone" name="phone"><br>
+            <input type="text" id="phone" name="phone"><br><br>
             <label for="email">Email:</label><br>
-            <input type="text" id="email" name="email"><br>
+            <input type="text" id="email" name="email"><br><br>
+            <label for="method">Preferred method of contact</label><br>
+            <select name="method" id="method">
+                <option value="email">Email</option>
+                <option value="text">Text</option>
+              </select><br><br>
             <button onclick="callREST()">Submit</button>
         </form>
+        <p>Someone from our class reunion planning group will reach out as we get closer to the event.</p>
     </body>
 </html>
