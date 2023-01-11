@@ -2,9 +2,9 @@
 <head>
 <script>
     function callREST() {
-        fetch(`https://gioandjake.com/submit?fname=${document.getElementById('fname').value}&lname=${document.getElementById('lname').value}&phone=${document.getElementById('phone').value}&email=${document.getElementById('email').value}`)
+        fetch(`https://gioandjake.com/submit?fname=${document.getElementById('fname').value}&lname=${document.getElementById('lname').value}&phone=${document.getElementById('phone').value}&email=${document.getElementById('email').value}&method=${document.getElementById('method').value}`)
             .then((response) => response.text())
-            .then((data) => console.log(data));
+            .then(alert("Thank you!"));
     }
 </script>
 <style type="text/css">

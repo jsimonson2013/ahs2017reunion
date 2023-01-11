@@ -19,7 +19,8 @@ func submitForm(w http.ResponseWriter, r *http.Request) {
 	if len(r.URL.Query()["fname"]) < 1 ||
 		len(r.URL.Query()["lname"]) < 1 ||
 		len(r.URL.Query()["email"]) < 1 ||
-		len(r.URL.Query()["phone"]) < 1 {
+		len(r.URL.Query()["phone"]) < 1 ||
+		len(r.URL.Query()["method"]) < 1 {
 		w.WriteHeader(400)
 		return
 	}
@@ -28,6 +29,7 @@ func submitForm(w http.ResponseWriter, r *http.Request) {
 	lastName := r.URL.Query()["lname"][0]
 	email := r.URL.Query()["email"][0]
 	phone := r.URL.Query()["phone"][0]
+	method := r.URL.Query()["method"][0]
 
 	f, err := os.OpenFile("records.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
@@ -36,7 +38,7 @@ func submitForm(w http.ResponseWriter, r *http.Request) {
 
 	defer f.Close()
 
-	if _, err = f.WriteString(fmt.Sprintf("%s, %s, %s, %s\n", firstName, lastName, email, phone)); err != nil {
+	if _, err = f.WriteString(fmt.Sprintf("%s, %s, %s, %s, %s\n", firstName, lastName, email, phone, method)); err != nil {
 		panic(err)
 	}
 
