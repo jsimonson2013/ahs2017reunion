@@ -1,0 +1,47 @@
+<html>
+<head>
+<script>
+    function callREST() {
+        fetch(`https://gioandjake.com/submit?name=${document.getElementById('name').value}&attending=${document.getElementById('attending').value}&adults=${document.getElementById('adults').value}&children=${document.getElementById('children').value}`)
+            .then((response) => response.text())
+            .then(alert("Thank you!"));
+    }
+</script>
+<style type="text/css">
+    html{
+        padding: 10px;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    form{
+        border: 1px solid black;
+        border-radius: 5px;
+        width: fit-content;
+        padding: 5px;
+    }
+    body{
+        width: fit-content;
+        margin: 0 auto;
+    }
+</style>
+</head>
+    <body>
+        <h1>RSVP</h1>
+        <h2>July 22nd, 5-9pm at the Local Bar and Grille</h2>
+        <p>Please fill out this form to help us plan for the event!</p>
+        <form action="javascript:void(0);">
+            <label for="name">What is your first and last name?</label><br>
+            <input type="text" id="name" name="name"><br><br>
+            <label for="attending">Will you be attending?</label><br>
+            <select name="attending" id="attending">
+                <option value="y">Yes</option>
+                <option value="n">No</option>
+            </select><br><br>
+            <label for="adults">How many adults will be in your group (including you)?</label><br>
+            <input type="number" id="adults" name="adults"><br><br>
+            <label for="children">How many children will be in your group?</label><br>
+            <input type="number" id="children" name="children"><br><br>
+            <button onclick="callREST()">Submit</button>
+        </form>
+    </body>
+</html>

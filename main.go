@@ -8,6 +8,8 @@ import (
 
 func main() {
 	http.HandleFunc("/submit", submitForm)
+	http.HandleFunc("/rsvp", rsvp)
+	http.HandleFunc("/submit/rsvp", submitRSVP)
 	err := http.ListenAndServe(":3333", nil)
 	fmt.Println(err)
 }
@@ -43,4 +45,20 @@ func submitForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(200)
+}
+
+func rsvp(w http.ResponseWriter, r *http.Request) {
+	// check that request has token
+
+	// check that token exists in tokens db and is not expired
+
+	// route to rsvp form with token information added to url
+}
+
+func submitRSVP(w http.ResponseWriter, r *http.Request) {
+	// extract params from url
+
+	// insert into rsvp's db
+
+	// redirect to home page
 }
