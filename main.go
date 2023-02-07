@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 )
@@ -15,7 +16,6 @@ func main() {
 }
 
 func submitForm(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r.URL.Query())
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 
 	if len(r.URL.Query()["fname"]) < 1 ||
@@ -48,17 +48,66 @@ func submitForm(w http.ResponseWriter, r *http.Request) {
 }
 
 func rsvp(w http.ResponseWriter, r *http.Request) {
-	// check that request has token
+	w.Header().Add("Access-Control-Allow-Origin", "*")
 
-	// check that token exists in tokens db and is not expired
+	// check that request has token
+	token := r.URL.Query()["token"]
+	if len(token) < 1 {
+		w.WriteHeader(403)
+		return
+	}
+
+	// check that token exists in tokens db and is not expire
+	if token[0] != "1234" {
+		w.WriteHeader(403)
+		return
+	}
 
 	// route to rsvp form with token information added to url
+	f, err := os.Open("./rsvp/index.html")
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+	defer f.Close()
+
+	bs, err := ioutil.ReadAll(f)
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+	fmt.Fprint(w, string(bs))
 }
 
 func submitRSVP(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+
 	// extract params from url
+	if len(r.URL.Query()["name"]) < 1 ||
+		len(r.URL.Query()["attending"]) < 1 ||
+		len(r.URL.Query()["plusone"]) < 1 {
+		w.WriteHeader(400)
+		return
+	}
 
 	// insert into rsvp's db
+	name := r.URL.Query()["name"][0]
+	attending := r.URL.Query()["attending"][0]
+	plusone := r.URL.Query()["plusone"][0]
+
+	f, err := os.OpenFile("rsvps.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+
+	defer f.Close()
+
+	if _, err = f.WriteString(fmt.Sprintf("%s, %s, %s\n", name, attending, plusone)); err != nil {
+		w.WriteHeader(500)
+		return
+	}
 
 	// redirect to home page
+	w.WriteHeader(200)
 }
