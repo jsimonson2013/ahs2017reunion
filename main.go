@@ -114,7 +114,6 @@ func (h DBHandler) rsvp(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	fmt.Println(tok);
 
 	if time.Now().Unix() > *tok.Expiration {
 		w.WriteHeader(401)
@@ -125,11 +124,6 @@ func (h DBHandler) rsvp(w http.ResponseWriter, r *http.Request) {
 	sql := "INSERT INTO cities(name, population) VALUES ('Moscow', 12506000)"
 	res, err := db.Exec(sql)
 	*/
-	// check that token exists in tokens db and is not expire
-	if token[0] != "1234" {
-		w.WriteHeader(403)
-		return
-	}
 
 	// route to rsvp form with token information added to url
 	f, err := os.Open("./rsvp/index.html")
