@@ -6,17 +6,23 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 var DB *sql.DB
 
+type DBHandler struct {
+	DB *sql.DB
+}
+
 func main() {
 	dbName := "reunion"
-	user := ""
-	pass := ""
+	user := os.Args[1]
+	pass := os.Args[2]
 	protocol := "tcp"
+	port := os.Args[3]
 
 	DB, err := sql.Open("mysql", fmt.Sprintf("%s:%s@%s(127.0.0.1:3306)/%s", user, pass, protocol, dbName))
 	if err != nil {
@@ -24,10 +30,18 @@ func main() {
 	}
 	defer DB.Close()
 
+	if err := DB.Ping(); err != nil {
+		panic(err)
+	}
+
+	dbh := DBHandler{DB}
+
+	fmt.Println("Connected to the DB...")
+
 	http.HandleFunc("/submit", submitForm)
-	http.HandleFunc("/rsvp", rsvp)
-	http.HandleFunc("/submit/rsvp", submitRSVP)
-	err = http.ListenAndServe(":3333", nil)
+	http.HandleFunc("/rsvpWithToken", dbh.rsvp)
+	http.HandleFunc("/submitRSVP", dbh.submitRSVP)
+	err = http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 	fmt.Println(err)
 }
 
@@ -68,13 +82,42 @@ func submitForm(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
 }
 
-func rsvp(w http.ResponseWriter, r *http.Request) {
+type Token struct {
+	ID *int64
+	ContactID *int64
+	Token *string
+	Expiration *int64
+}
+
+func (h DBHandler) rsvp(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 
 	// check that request has token
 	token := r.URL.Query()["token"]
 	if len(token) < 1 {
 		w.WriteHeader(403)
+		return
+	}
+
+  // A token to hold data from the returned row.
+	var tok Token
+
+	row := h.DB.QueryRow("SELECT ID, ContactID, Token, expiration FROM reunion.tokens WHERE Token = ?", token[0])
+	if err := row.Scan(&tok.ID, &tok.ContactID, &tok.Token, &tok.Expiration); err != nil {
+		if err == sql.ErrNoRows {
+			w.WriteHeader(404)
+			return
+		}
+		if err != nil {
+			w.WriteHeader(500)
+			fmt.Println(err)
+			return
+		}
+	}
+	fmt.Println(tok);
+
+	if time.Now().Unix() > *tok.Expiration {
+		w.WriteHeader(401)
 		return
 	}
 
@@ -104,7 +147,7 @@ func rsvp(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(bs))
 }
 
-func submitRSVP(w http.ResponseWriter, r *http.Request) {
+func (h DBHandler) submitRSVP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 
 	// extract params from url
