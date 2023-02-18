@@ -150,8 +150,8 @@ func (h DBHandler) submitRSVP(w http.ResponseWriter, r *http.Request) {
 
 	// insert into rsvp's db
 	name := r.URL.Query()["name"][0]
-	attending := r.URL.Query()["attending"][0]
-	plusone := r.URL.Query()["plusone"][0]
+	attending := r.URL.Query()["attending"][0] == "y"
+	plusone := r.URL.Query()["plusone"][0] == "y"
 	token := r.URL.Query()["token"][0]
 
 	// A token to hold data from the returned row.
@@ -170,9 +170,10 @@ func (h DBHandler) submitRSVP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	_, err := h.DB.Exec("INSERT INTO reunion.rsvps (ContactID, Name, Attending, PlusOne) VALUES ($1, $2, $3, $4)", tok.ContactID, name, attending, plusone)
+	_, err := h.DB.Exec("INSERT INTO reunion.rsvps (ContactID, Name, Attending, PlusOne) VALUES (?, ?, ?, ?)", tok.ContactID, name, attending, plusone)
 	if err != nil {
 		w.WriteHeader(500)
+		fmt.Println(err)
 		return
 	}
 
@@ -180,6 +181,7 @@ func (h DBHandler) submitRSVP(w http.ResponseWriter, r *http.Request) {
 	f, err := os.Open("./index.html")
 	if err != nil {
 		w.WriteHeader(500)
+		fmt.Println(err)
 		return
 	}
 	defer f.Close()
@@ -187,12 +189,15 @@ func (h DBHandler) submitRSVP(w http.ResponseWriter, r *http.Request) {
 	bs, err := ioutil.ReadAll(f)
 	if err != nil {
 		w.WriteHeader(500)
+		fmt.Println(err)
 		return
 	}
 
 	fmt.Fprint(w, string(bs))
 
-	if _, err := h.DB.Exec("UPDATE reunion.tokens SET expiration=$1", 0); err != nil {
+	if _, err := h.DB.Exec("UPDATE reunion.tokens SET expiration=?", 0); err != nil {
 		fmt.Printf("Error while updating token expiration: %v\n", err)
 	}
+
+	fmt.Println("HERE")
 }
