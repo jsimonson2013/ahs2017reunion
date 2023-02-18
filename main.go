@@ -83,9 +83,9 @@ func submitForm(w http.ResponseWriter, r *http.Request) {
 }
 
 type Token struct {
-	ID *int64
-	ContactID *int64
-	Token *string
+	ID         *int64
+	ContactID  *int64
+	Token      *string
 	Expiration *int64
 }
 
@@ -99,7 +99,7 @@ func (h DBHandler) rsvp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-  // A token to hold data from the returned row.
+	// A token to hold data from the returned row.
 	var tok Token
 
 	row := h.DB.QueryRow("SELECT ID, ContactID, Token, expiration FROM reunion.tokens WHERE Token = ?", token[0])
@@ -119,11 +119,6 @@ func (h DBHandler) rsvp(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(401)
 		return
 	}
-
-	/* TODO
-	sql := "INSERT INTO cities(name, population) VALUES ('Moscow', 12506000)"
-	res, err := db.Exec(sql)
-	*/
 
 	// route to rsvp form with token information added to url
 	f, err := os.Open("./rsvp/index.html")
@@ -147,7 +142,8 @@ func (h DBHandler) submitRSVP(w http.ResponseWriter, r *http.Request) {
 	// extract params from url
 	if len(r.URL.Query()["name"]) < 1 ||
 		len(r.URL.Query()["attending"]) < 1 ||
-		len(r.URL.Query()["plusone"]) < 1 {
+		len(r.URL.Query()["plusone"]) < 1 ||
+		len(r.URL.Query()["token"]) < 1 {
 		w.WriteHeader(400)
 		return
 	}
@@ -156,25 +152,47 @@ func (h DBHandler) submitRSVP(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query()["name"][0]
 	attending := r.URL.Query()["attending"][0]
 	plusone := r.URL.Query()["plusone"][0]
+	token := r.URL.Query()["token"][0]
 
-	/* TODO
-	sql := "INSERT INTO cities(name, population) VALUES ('Moscow', 12506000)"
-	res, err := db.Exec(sql)
-	*/
+	// A token to hold data from the returned row.
+	var tok Token
 
-	f, err := os.OpenFile("rsvps.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	row := h.DB.QueryRow("SELECT ID, ContactID, Token, expiration FROM reunion.tokens WHERE Token = ?", token)
+	if err := row.Scan(&tok.ID, &tok.ContactID, &tok.Token, &tok.Expiration); err != nil {
+		if err == sql.ErrNoRows {
+			w.WriteHeader(404)
+			return
+		}
+		if err != nil {
+			w.WriteHeader(500)
+			fmt.Println(err)
+			return
+		}
+	}
+
+	_, err := h.DB.Exec("INSERT INTO reunion.rsvps (ContactID, Name, Attending, PlusOne) VALUES ($1, $2, $3, $4)", tok.ContactID, name, attending, plusone)
 	if err != nil {
 		w.WriteHeader(500)
 		return
 	}
 
+	// route to rsvp form with token information added to url
+	f, err := os.Open("./index.html")
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
 	defer f.Close()
 
-	if _, err = f.WriteString(fmt.Sprintf("%s, %s, %s\n", name, attending, plusone)); err != nil {
+	bs, err := ioutil.ReadAll(f)
+	if err != nil {
 		w.WriteHeader(500)
 		return
 	}
 
-	// redirect to home page
-	w.WriteHeader(200)
+	fmt.Fprint(w, string(bs))
+
+	if _, err := h.DB.Exec("UPDATE reunion.tokens SET expiration=$1", 0); err != nil {
+		fmt.Printf("Error while updating token expiration: %v\n", err)
+	}
 }
