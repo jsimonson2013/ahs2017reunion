@@ -2,9 +2,11 @@
 <head>
 <script>
     function callREST() {
-        fetch(`https://gioandjake.com/rsvpWithToken?name=${document.getElementById('name').value}&attending=${document.getElementById('attending').value}&plusone=${document.getElementById('plusone').value}`)
-            .then((response) => response.text())
-            .then(res => document.write(res));
+        let queryString = window.location.search
+        let token = queryString.substring(7)
+        fetch(`https://gioandjake.com/submitRSVP?name=${document.getElementById('name').value}&token=${token}&attending=${document.getElementById('attending').value}&plusone=${document.getElementById('plusone').value}`)
+            .then(response => response.text())
+            .then(res => document.write(res))
     }
 </script>
 <style type="text/css">
