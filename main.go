@@ -63,11 +63,6 @@ func submitForm(w http.ResponseWriter, r *http.Request) {
 	phone := r.URL.Query()["phone"][0]
 	method := r.URL.Query()["method"][0]
 
-	/* TODO
-	sql := "INSERT INTO cities(name, population) VALUES ('Moscow', 12506000)"
-	res, err := db.Exec(sql)
-	*/
-
 	f, err := os.OpenFile("records.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		panic(err)
@@ -79,7 +74,20 @@ func submitForm(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	w.WriteHeader(200)
+	f2, err2 := os.Open("./rsvp/thanks.html")
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+	defer f2.Close()
+
+	bs, err2 := ioutil.ReadAll(f2)
+	if err2 != nil {
+		w.WriteHeader(500)
+		return
+	}
+
+	fmt.Fprint(w, string(bs))
 }
 
 type Token struct {
@@ -177,7 +185,7 @@ func (h DBHandler) submitRSVP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// route to rsvp form with token information added to url
-	f, err := os.Open("./index.html")
+	f, err := os.Open("./rsvp/thanks.html")
 	if err != nil {
 		w.WriteHeader(500)
 		return
