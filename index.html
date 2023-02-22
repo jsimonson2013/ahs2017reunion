@@ -4,7 +4,7 @@
     function callREST() {
         fetch(`https://gioandjake.com/submit?fname=${document.getElementById('fname').value}&lname=${document.getElementById('lname').value}&phone=${document.getElementById('phone').value}&email=${document.getElementById('email').value}&method=${document.getElementById('method').value}`)
             .then((response) => response.text())
-            .then(alert("Thank you!"));
+            .then(res => document.write(res));
     }
 </script>
 <style type="text/css">
