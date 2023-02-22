@@ -203,9 +203,7 @@ func (h DBHandler) submitRSVP(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprint(w, string(bs))
 
-	if _, err := h.DB.Exec("UPDATE reunion.tokens SET expiration=?", 0); err != nil {
+	if _, err := h.DB.Exec("UPDATE reunion.tokens SET expiration=? WHERE ContactID=?", 0, tok.ContactID); err != nil {
 		fmt.Printf("Error while updating token expiration: %v\n", err)
 	}
-
-	fmt.Println("HERE")
 }
